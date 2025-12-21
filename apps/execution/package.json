@@ -1,0 +1,20 @@
+{
+  "name": "execution-service",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "nodemon src/index.ts"
+  },
+  "dependencies": {
+    "@repo/shared": "file:../../packages/shared",
+    "@binance/connector": "^3.6.1",
+    "dotenv": "^16.3.1",
+    "redis": "^4.6.10"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
