@@ -1,0 +1,25 @@
+# apps/backend/Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# 1. Copy Root Files
+COPY package.json package-lock.json ./
+
+# 2. Copy Shared Packages
+COPY packages/shared ./packages/shared
+
+# 3. Copy App Source
+COPY apps/backend ./apps/backend
+
+# 4. Install Dependencies (from root to link workspaces)
+RUN npm ci
+
+# 5. Generate Prisma Client (Important!)
+WORKDIR /app/packages/shared
+RUN npx prisma generate
+
+# 6. Build/Run Backend
+WORKDIR /app/apps/backend
+RUN npm run build
+CMD ["npm", "start"]

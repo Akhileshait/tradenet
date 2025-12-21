@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # 1. Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: trading_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Message Bus
+  redis:
+    image: redis:7-alpine
+    container_name: trading_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 3. Redis GUI (Optional - Great for debugging)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: trading_redis_gui
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+volumes:
+  postgres_data:

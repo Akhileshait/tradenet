@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Changed from sqlite
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String @id @default(uuid())
+  email          String @unique
+  password       String
+  binanceApiKey  String 
+  binanceSecret  String 
+  orders         OrderCommand[]
+}
+
+model OrderCommand {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  symbol    String
+  side      String
+  type      String
+  quantity  Float
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  events    OrderEvent[]
+}
+
+model OrderEvent {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     OrderCommand @relation(fields: [orderId], references: [id])
+  status    String
+  price     Float?
+  quantity  Float?
+  timestamp DateTime @default(now())
+}
