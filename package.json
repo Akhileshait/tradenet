@@ -15,10 +15,15 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "db:push": "npm run db:push --workspace=packages/shared",
+    "dev": "npm run dev --workspaces --if-present"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "prisma": "^7.2.0"
+    "@prisma/client": "^5.21.0",
+    "prisma": "^5.21.0"
   }
 }
