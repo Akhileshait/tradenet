@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import TradingChart from '@/components/TradingChart';
+import TradingChart from '@/components/Chart';
 import OrderEntry from '@/components/OrderEntry';
 import OrderBook from '@/components/OrderBook';
 import RecentTrades from '@/components/RecentTrades';
