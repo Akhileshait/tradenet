@@ -1,29 +1,33 @@
 "use client";
 
-import { useEffect, useRef, memo } from "react";
+import { useEffect, useRef, memo, useState } from "react";
 import {
   createChart,
   IChartApi,
   ISeriesApi,
   ColorType,
   CandlestickSeries,
+  UTCTimestamp,
 } from "lightweight-charts";
-import { KlineData } from "@/types";
-import { UTCTimestamp } from "lightweight-charts";
+
+// Utility to combine classes
+function cn(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}
 
 interface TradingChartProps {
-  data: KlineData[];
   symbol: string;
 }
 
-const TradingChart = memo(function TradingChart({
-  data,
-  symbol,
-}: TradingChartProps) {
+const TradingChart = memo(function TradingChart({ symbol }: TradingChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
 
+  // 1. Internal State for Interval (defaults to 1h)
+  const [interval, setInterval] = useState("1h");
+
+  // 2. Initialize Chart (Run once)
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
@@ -48,8 +52,7 @@ const TradingChart = memo(function TradingChart({
       },
     });
 
-    chartRef.current = chart;
-
+    // Add Series
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
       upColor: "#0ECB81",
       downColor: "#F6465D",
@@ -59,6 +62,7 @@ const TradingChart = memo(function TradingChart({
       wickDownColor: "#F6465D",
     });
 
+    chartRef.current = chart;
     seriesRef.current = candlestickSeries;
 
     const handleResize = () => {
@@ -75,47 +79,67 @@ const TradingChart = memo(function TradingChart({
     };
   }, []);
 
+  // 3. Fetch Data when Interval or Symbol changes
   useEffect(() => {
-    if (seriesRef.current && data.length > 0) {
-      const formattedData = data.map((d) => ({
-        time: (d.time / 1000) as UTCTimestamp,
-        open: d.open,
-        high: d.high,
-        low: d.low,
-        close: d.close,
-      }));
+    const fetchHistory = async () => {
+      if (!seriesRef.current) return;
 
-      seriesRef.current.setData(formattedData);
-    }
-  }, [data]);
+      try {
+        // Use the Proxy to avoid CORS
+        const res = await fetch(
+          `/binance-proxy/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=1000`
+        );
+        const data = await res.json();
+
+        // Format data for Lightweight Charts
+        const formattedData = data.map((d: (string | number)[]) => ({
+          time: ((d[0] as number) / 1000) as UTCTimestamp,
+          open: parseFloat(d[1] as string),
+          high: parseFloat(d[2] as string),
+          low: parseFloat(d[3] as string),
+          close: parseFloat(d[4] as string),
+        }));
+
+        seriesRef.current.setData(formattedData);
+      } catch (err) {
+        console.error("Failed to fetch chart data:", err);
+      }
+    };
+
+    fetchHistory();
+
+    // NOTE: If you are using the WebSocket hook for live updates,
+    // you would pass `interval` to it so it matches this chart.
+  }, [symbol, interval]);
 
   return (
-    <div className="bg-dark-surface rounded-lg p-4 border border-dark-border">
+    <div className="bg-[#161A1E] rounded-lg p-4 border border-[#1E2329]">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-white">{symbol}</h2>
+        <h2 className="text-lg font-semibold text-white">{symbol} Chart</h2>
+
+        {/* Interval Buttons */}
         <div className="flex gap-2">
-          {["1m", "5m", "15m", "1h", "4h", "1d"].map((interval) => (
+          {["1m", "5m", "15m", "1h", "4h", "1d"].map((t) => (
             <button
-              key={interval}
+              key={t}
+              onClick={() => setInterval(t)} // <--- This now updates the state
               className={cn(
-                "px-3 py-1 text-xs rounded transition-colors",
-                interval === "1m"
-                  ? "bg-accent-blue text-white"
-                  : "text-gray-400 hover:text-white hover:bg-dark-hover"
+                "px-3 py-1 text-xs rounded transition-colors font-medium",
+                interval === t // <--- Checks actual state
+                  ? "bg-[#3861FB] text-white" // Active Blue
+                  : "text-gray-400 hover:text-white hover:bg-[#2B3139]"
               )}
             >
-              {interval}
+              {t}
             </button>
           ))}
         </div>
       </div>
-      <div ref={chartContainerRef} />
+
+      {/* Chart Container */}
+      <div ref={chartContainerRef} className="w-full h-[500px]" />
     </div>
   );
 });
 
 export default TradingChart;
-
-function cn(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}

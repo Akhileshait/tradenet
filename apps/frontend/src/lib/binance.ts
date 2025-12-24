@@ -6,7 +6,7 @@ import {
   TickerData 
 } from '@/types';
 
-const BASE_URL = 'https://testnet.binance.vision';
+const BASE_URL = '/binance-proxy';
 
 function getApiKeys(): { apiKey: string; secretKey: string } {
   if (typeof window === 'undefined') {

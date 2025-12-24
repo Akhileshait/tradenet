@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
-import TradingChart from '@/components/Chart';
-import OrderEntry from '@/components/OrderEntry';
-import OrderBook from '@/components/OrderBook';
-import RecentTrades from '@/components/RecentTrades';
-import OpenOrders from '@/components/OpenOrders';
-import PositionTable from '@/components/PositionTable';
-import { useTradeWebSocket } from '@/hooks/useTradeWebSocket';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { Activity } from 'lucide-react';
+import { useState, useCallback } from "react";
+import { useParams } from "next/navigation";
+import TradingChart from "@/components/Chart";
+import OrderEntry from "@/components/OrderEntry";
+import OrderBook from "@/components/OrderBook";
+import RecentTrades from "@/components/RecentTrades";
+import OpenOrders from "@/components/OpenOrders";
+import PositionTable from "@/components/PositionTable";
+import { useTradeWebSocket } from "@/hooks/useTradeWebSocket";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { Activity } from "lucide-react";
 
 export default function TradePage() {
   const params = useParams();
@@ -25,9 +25,9 @@ export default function TradePage() {
   }, []);
 
   useKeyboardShortcuts({
-    onBuy: () => console.log('Buy shortcut'),
-    onSell: () => console.log('Sell shortcut'),
-    onCancel: () => console.log('Cancel shortcut'),
+    onBuy: () => console.log("Buy shortcut"),
+    onSell: () => console.log("Sell shortcut"),
+    onCancel: () => console.log("Cancel shortcut"),
   });
 
   return (
@@ -35,11 +35,11 @@ export default function TradePage() {
       <div className="flex items-center gap-2 px-4 py-2 bg-dark-surface rounded-lg border border-dark-border w-fit">
         <Activity
           className={`w-4 h-4 ${
-            isConnected ? 'text-accent-green animate-pulse' : 'text-gray-500'
+            isConnected ? "text-accent-green animate-pulse" : "text-gray-500"
           }`}
         />
         <span className="text-sm text-gray-400">
-          {isConnected ? 'Connected' : 'Connecting...'}
+          {isConnected ? "Connected" : "Connecting..."}
         </span>
       </div>
 
@@ -53,7 +53,7 @@ export default function TradePage() {
         </div>
 
         <div className="xl:col-span-6">
-          <TradingChart data={klineData} symbol={symbol} />
+          <TradingChart symbol={symbol} />
         </div>
 
         <div className="xl:col-span-3 space-y-4">
