@@ -11,9 +11,11 @@ export function useTradeWebSocket(symbol: string) {
     bids: [],
     asks: [],
   });
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const connectRef = useRef<() => void>(() => {});
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -31,6 +33,7 @@ export function useTradeWebSocket(symbol: string) {
 
     ws.onopen = () => {
       console.log('WebSocket connected for', symbol);
+      setIsConnected(true);
     };
 
     ws.onmessage = (event) => {
@@ -97,11 +100,16 @@ export function useTradeWebSocket(symbol: string) {
 
     ws.onclose = () => {
       console.log('WebSocket closed, attempting reconnect...');
+      setIsConnected(false);
       reconnectTimeoutRef.current = setTimeout(() => {
-        connect();
+        connectRef.current?.();
       }, 3000);
     };
   }, [symbol]);
+
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     connect();
@@ -121,6 +129,6 @@ export function useTradeWebSocket(symbol: string) {
     currentPrice,
     recentTrades,
     orderBook,
-    isConnected: wsRef.current?.readyState === WebSocket.OPEN,
+    isConnected,
   };
 }

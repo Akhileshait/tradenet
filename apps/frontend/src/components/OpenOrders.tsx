@@ -1,23 +1,22 @@
-'use client';
+"use client";
 
-import { memo, useEffect, useState } from 'react';
-import { X, Loader2 } from 'lucide-react';
-import { useBinanceAPI } from '@/hooks/useBinanceAPI';
-import { Order } from '@/types';
-import { formatPrice, formatTime, cn } from '@/lib/utils';
+import { memo, useEffect, useState } from "react";
+import { X, Loader2 } from "lucide-react";
+import { useBinanceAPI } from "@/hooks/useBinanceAPI";
+import { Order } from "@/types";
+import { formatPrice, formatTime, cn } from "@/lib/utils";
 
 interface OpenOrdersProps {
   symbol?: string;
   refreshTrigger?: number;
 }
 
-const OpenOrders = memo(function OpenOrders({ symbol, refreshTrigger }: OpenOrdersProps) {
+const OpenOrders = memo(function OpenOrders({
+  symbol,
+  refreshTrigger,
+}: OpenOrdersProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const { fetchOpenOrders, removeOrder, loading } = useBinanceAPI();
-
-  useEffect(() => {
-    loadOrders();
-  }, [symbol, refreshTrigger]);
 
   const loadOrders = async () => {
     const result = await fetchOpenOrders(symbol);
@@ -25,6 +24,12 @@ const OpenOrders = memo(function OpenOrders({ symbol, refreshTrigger }: OpenOrde
       setOrders(result);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      await loadOrders();
+    })();
+  }, [symbol, refreshTrigger]);
 
   const handleCancelOrder = async (orderId: number, orderSymbol: string) => {
     const result = await removeOrder(orderSymbol, orderId);
@@ -66,14 +71,20 @@ const OpenOrders = memo(function OpenOrders({ symbol, refreshTrigger }: OpenOrde
                   key={order.orderId}
                   className="border-t border-dark-border hover:bg-dark-hover transition-colors"
                 >
-                  <td className="px-4 py-3 text-gray-400">{formatTime(order.time)}</td>
-                  <td className="px-4 py-3 text-white font-medium">{order.symbol}</td>
+                  <td className="px-4 py-3 text-gray-400">
+                    {formatTime(order.time)}
+                  </td>
+                  <td className="px-4 py-3 text-white font-medium">
+                    {order.symbol}
+                  </td>
                   <td className="px-4 py-3 text-gray-400">{order.type}</td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
-                        'font-medium',
-                        order.side === 'BUY' ? 'text-accent-green' : 'text-accent-red'
+                        "font-medium",
+                        order.side === "BUY"
+                          ? "text-accent-green"
+                          : "text-accent-red"
                       )}
                     >
                       {order.side}
@@ -95,7 +106,9 @@ const OpenOrders = memo(function OpenOrders({ symbol, refreshTrigger }: OpenOrde
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() => handleCancelOrder(order.orderId, order.symbol)}
+                      onClick={() =>
+                        handleCancelOrder(order.orderId, order.symbol)
+                      }
                       className="p-1 hover:bg-accent-red/10 rounded transition-colors group"
                       title="Cancel order"
                     >

@@ -4,17 +4,10 @@ import { useState, useEffect } from 'react';
 import { Key, Save, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function SettingsPage() {
-  const [apiKey, setApiKey] = useState('');
-  const [secretKey, setSecretKey] = useState('');
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('binance_api_key') || '');
+  const [secretKey, setSecretKey] = useState(() => localStorage.getItem('binance_secret_key') || '');
   const [showSecret, setShowSecret] = useState(false);
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const storedApiKey = localStorage.getItem('binance_api_key') || '';
-    const storedSecretKey = localStorage.getItem('binance_secret_key') || '';
-    setApiKey(storedApiKey);
-    setSecretKey(storedSecretKey);
-  }, []);
 
   const handleSave = () => {
     localStorage.setItem('binance_api_key', apiKey);

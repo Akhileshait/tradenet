@@ -1,20 +1,14 @@
-'use client';
+"use client";
 
-import { memo, useEffect, useState } from 'react';
-import { Wallet, Loader2 } from 'lucide-react';
-import { useBinanceAPI } from '@/hooks/useBinanceAPI';
-import { Balance } from '@/types';
-import { formatPrice } from '@/lib/utils';
+import { memo, useEffect, useState } from "react";
+import { Wallet, Loader2 } from "lucide-react";
+import { useBinanceAPI } from "@/hooks/useBinanceAPI";
+import { Balance } from "@/types";
+import { formatPrice } from "@/lib/utils";
 
 const PositionTable = memo(function PositionTable() {
   const [balances, setBalances] = useState<Balance[]>([]);
   const { fetchAccountInfo, loading } = useBinanceAPI();
-
-  useEffect(() => {
-    loadBalances();
-    const interval = setInterval(loadBalances, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const loadBalances = async () => {
     const result = await fetchAccountInfo();
@@ -25,6 +19,14 @@ const PositionTable = memo(function PositionTable() {
       setBalances(nonZeroBalances);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      await loadBalances();
+    })();
+    const interval = setInterval(loadBalances, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="bg-dark-surface rounded-lg border border-dark-border">
@@ -62,7 +64,9 @@ const PositionTable = memo(function PositionTable() {
                     key={balance.asset}
                     className="border-t border-dark-border hover:bg-dark-hover transition-colors"
                   >
-                    <td className="px-4 py-3 text-white font-medium">{balance.asset}</td>
+                    <td className="px-4 py-3 text-white font-medium">
+                      {balance.asset}
+                    </td>
                     <td className="px-4 py-3 text-right text-gray-400">
                       {formatPrice(free, 8)}
                     </td>
